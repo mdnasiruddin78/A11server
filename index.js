@@ -41,6 +41,13 @@ async function run() {
             res.send(result)
         })
 
+        // get all service data
+        app.get('/serviceLimit', async (req, res) => {
+            const cursor = serviceCollection.find().limit(6);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
         // service details by id
         app.get('/allService/:id',async(req,res) => {
             const id = req.params.id;
