@@ -23,6 +23,7 @@ async function run() {
     try {
 
         const serviceCollection = client.db("serviceDb").collection("serviceInfo");
+        const reviewCollection = client.db("serviceDb").collection("reviewInfo");
 
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
@@ -41,6 +42,22 @@ async function run() {
             res.send(result)
         })
 
+        // my service by email
+        app.get('/allService/:email',async(req,res) => {
+            const email = req.params.email
+            const query = {email: email}
+            const result = await serviceCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        // my service by email delete
+        app.delete('/allService/:id',async(req,res) => {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await serviceCollection.deleteOne(query)
+            res.send(result)
+        })
+
         // get all service data
         app.get('/serviceLimit', async (req, res) => {
             const cursor = serviceCollection.find().limit(6);
@@ -49,10 +66,40 @@ async function run() {
         })
 
         // service details by id
-        app.get('/allService/:id',async(req,res) => {
+        app.get('/serviceDetails/:id',async(req,res) => {
             const id = req.params.id;
             const query = {_id: new ObjectId(id)}
             const result = await serviceCollection.findOne(query)
+            res.send(result)
+        })
+
+        // all review post 
+        app.post('/allReview',async(req,res) => {
+            const review = req.body
+            const result = await reviewCollection.insertOne(review)
+            res.send(result)
+        })
+
+        // get all review
+        app.get('/allReview', async (req, res) => {
+            const cursor = reviewCollection.find();
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
+        // get review by email
+        app.get('/allReview/:email',async(req,res) => {
+            const email = req.params.email
+            const query = {email: email}
+            const result = await reviewCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        // // get review by category
+        app.get('/allReview/:category',async(req,res) => {
+            const category = req.query.category
+            const query = {category: category}
+            const result = await reviewCollection.find(query).toArray()
             res.send(result)
         })
 
