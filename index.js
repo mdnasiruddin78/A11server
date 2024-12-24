@@ -73,6 +73,21 @@ async function run() {
             res.send(result)
         })
 
+        // update service
+        app.put('/updateService/:id',async(req,res) => {
+            const id = req.params.id
+            const serviceUpdate = req.body
+            const query = {_id: new ObjectId(id)}
+            const updated = {
+                $set: {
+                    serviceUpdate,
+                }
+            }
+            const option = {upsert: true}
+            const result = await serviceCollection.updateOne(query,updated,option)
+            res.send(result)
+        })
+
         // all review post 
         app.post('/allReview',async(req,res) => {
             const review = req.body
@@ -88,7 +103,7 @@ async function run() {
         })
 
         // get review by email
-        app.get('/allReview/:email',async(req,res) => {
+        app.get('/allReviews/:email',async(req,res) => {
             const email = req.params.email
             const query = {email: email}
             const result = await reviewCollection.find(query).toArray()
@@ -96,12 +111,12 @@ async function run() {
         })
 
         // // get review by category
-        app.get('/allReview/:category',async(req,res) => {
-            const category = req.query.category
-            const query = {category: category}
-            const result = await reviewCollection.find(query).toArray()
-            res.send(result)
-        })
+        // app.get('/allReview/:category',async(req,res) => {
+        //     const category = req.query.category
+        //     const query = {category: category}
+        //     const result = await reviewCollection.find(query).toArray()
+        //     res.send(result)
+        // })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
