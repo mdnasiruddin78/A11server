@@ -110,13 +110,6 @@ async function run() {
             res.send(result)
         })
 
-        // get all review
-        app.get('/allReview', async (req, res) => {
-            const cursor = reviewCollection.find();
-            const result = await cursor.toArray();
-            res.send(result)
-        })
-
         // // get review by category
         app.get('/allReview/:category',async(req,res) => {
             const category = req.params.category
