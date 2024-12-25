@@ -102,6 +102,14 @@ async function run() {
             res.send(result)
         })
 
+        // delete a review
+        app.delete('/deleteReview/:id',async(req,res) => {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await reviewCollection.deleteOne(query)
+            res.send(result)
+        })
+
         // get review by email
         app.get('/allReviews/:email',async(req,res) => {
             const email = req.params.email
@@ -111,12 +119,12 @@ async function run() {
         })
 
         // // get review by category
-        // app.get('/allReview/:category',async(req,res) => {
-        //     const category = req.query.category
-        //     const query = {category: category}
-        //     const result = await reviewCollection.find(query).toArray()
-        //     res.send(result)
-        // })
+        app.get('/allReview/:category',async(req,res) => {
+            const category = req.params.category
+            const query = {category: category}
+            const result = await reviewCollection.find(query).toArray()
+            res.send(result)
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
