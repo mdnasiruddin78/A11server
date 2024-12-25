@@ -88,6 +88,21 @@ async function run() {
             res.send(result)
         })
 
+        // update Review
+        app.put('/reviewUpdate/:id',async(req,res) => {
+            const id = req.params.id
+            const reviewUpdate = req.body
+            const query = {_id: new ObjectId(id)}
+            const updated = {
+                $set: {
+                    ...reviewUpdate,
+                }
+            }
+            const option = {upsert: true}
+            const result = await reviewCollection.updateOne(query,updated,option)
+            res.send(result)
+        })
+
         // all review post 
         app.post('/allReview',async(req,res) => {
             const review = req.body
