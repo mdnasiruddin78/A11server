@@ -80,7 +80,7 @@ async function run() {
             const query = {_id: new ObjectId(id)}
             const updated = {
                 $set: {
-                    serviceUpdate,
+                    ...serviceUpdate,
                 }
             }
             const option = {upsert: true}
