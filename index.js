@@ -1,12 +1,37 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 const app = express()
 
-app.use(cors())
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://service-review-server-eosin.vercel.app',
+        ],
+    credentials: true,
+}))
 app.use(express.json())
+app.use(cookieParser())
+
+// const verifyToken = (req,res,next) => {
+//     const token = req.cookies?.token
+//     if(!token){
+//         return res.status(401).send({message: 'unAuthorize access'})
+//     }
+
+//     jwt.verify(token,process.env.SECRET_API_KEY,(err,decoded) => {
+//         if(err){
+//             return res.status(401).send({message: 'unAuthorize access'})
+//         }
+//         req.user = decoded
+//         next()
+//     })
+// }
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.h3mej.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -28,6 +53,29 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
 
+        // jwt route auth related apis
+        app.post('/jwt', (req, res) => {
+            const user = req.body
+            const token = jwt.sign(user, process.env.SECRET_API_KEY)
+
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: false,
+            })
+
+                .send({ success: true })
+        })
+
+        // remove token apis
+        app.post('/logout', (req, res) => {
+            res.clearCookie('token', {
+                httpOnly: true,
+                secure: false,
+            })
+
+                .send({ success: true })
+        })
+
         // all service data to database post
         app.post('/addService', async (req, res) => {
             const service = req.body;
@@ -43,17 +91,17 @@ async function run() {
         })
 
         // my service by email
-        app.get('/allService/:email',async(req,res) => {
+        app.get('/allService/:email', async (req, res) => {
             const email = req.params.email
-            const query = {email: email}
+            const query = { email: email }
             const result = await serviceCollection.find(query).toArray()
             res.send(result)
         })
 
         // my service by email delete
-        app.delete('/allService/:id',async(req,res) => {
+        app.delete('/allService/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await serviceCollection.deleteOne(query)
             res.send(result)
         })
@@ -66,70 +114,70 @@ async function run() {
         })
 
         // service details by id
-        app.get('/serviceDetails/:id',async(req,res) => {
+        app.get('/serviceDetails/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await serviceCollection.findOne(query)
             res.send(result)
         })
 
         // update service
-        app.put('/updateService/:id',async(req,res) => {
+        app.put('/updateService/:id', async (req, res) => {
             const id = req.params.id
             const serviceUpdate = req.body
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const updated = {
                 $set: {
                     ...serviceUpdate,
                 }
             }
-            const option = {upsert: true}
-            const result = await serviceCollection.updateOne(query,updated,option)
+            const option = { upsert: true }
+            const result = await serviceCollection.updateOne(query, updated, option)
             res.send(result)
         })
 
         // update Review
-        app.put('/reviewUpdate/:id',async(req,res) => {
+        app.put('/reviewUpdate/:id', async (req, res) => {
             const id = req.params.id
             const reviewUpdate = req.body
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const updated = {
                 $set: {
                     ...reviewUpdate,
                 }
             }
-            const option = {upsert: true}
-            const result = await reviewCollection.updateOne(query,updated,option)
+            const option = { upsert: true }
+            const result = await reviewCollection.updateOne(query, updated, option)
             res.send(result)
         })
 
         // all review post 
-        app.post('/allReview',async(req,res) => {
+        app.post('/allReview', async (req, res) => {
             const review = req.body
             const result = await reviewCollection.insertOne(review)
             res.send(result)
         })
 
         // // get review by category
-        app.get('/allReview/:category',async(req,res) => {
+        app.get('/allReview/:category', async (req, res) => {
             const category = req.params.category
-            const query = {category: category}
+            const query = { category: category }
             const result = await reviewCollection.find(query).toArray()
             res.send(result)
         })
 
-         // get review by email
-         app.get('/allReviews/:email',async(req,res) => {
+        // get review by email
+        app.get('/allReviews/:email',async (req, res) => {
             const email = req.params.email
-            const query = {email: email}
+            const query = { email: email }
             const result = await reviewCollection.find(query).toArray()
             res.send(result)
         })
 
         // delete a review
-        app.delete('/deleteReview/:id',async(req,res) => {
+        app.delete('/deleteReview/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await reviewCollection.deleteOne(query)
             res.send(result)
         })
